@@ -159,6 +159,7 @@ h1{margin:0 0 .75rem;font-size:clamp(1.9rem,7vw,2.6rem);line-height:1.05;letter-
 .chip{width:3.1rem;aspect-ratio:1}
 .ico{width:56%;height:56%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ico.logo{width:68%;height:68%}
+.brave-mark{filter:invert(43%) sepia(93%) saturate(2848%) hue-rotate(344deg) brightness(100%) contrast(98%)}
 .tile::after{content:"";position:absolute;bottom:-.38rem;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--hi);opacity:0}
 .tile.is-current::after,.tile[aria-current]::after,.has-sub.open>.tile::after{opacity:.9}
 .tile::before{content:attr(data-label);position:absolute;bottom:calc(100% + .7rem);left:50%;translate:-50% 4px;padding:.3rem .6rem;border-radius:8px;
@@ -367,7 +368,7 @@ h1.mark{margin:0;font:400 clamp(1.5rem,6.5vw,2.3rem)/1.1 "Michroma","DM Sans",sy
     { id: 'games',     name: 'Games',       icon: 'dice',    c1: '#b48cff', c2: '#6b43d6' },
     { id: 'messages',  name: 'Messages',    icon: 'chat',    c1: '#86e070', c2: '#3bb44c' },
     { id: 'settings',  name: 'Settings',    icon: 'gear',    c1: '#d3d6da', c2: '#8d9298', ic: '#23282c' },
-    { id: 'browser',   name: 'Browser',     icon: 'globe',   c1: '#6bb6ff', c2: '#2f7be0' },
+    { id: 'browser',   name: 'Browser',     icon: 'globe',   logo: true, c1: '#252525', c2: '#111111' },
     { id: 'store',     name: 'App Store',   icon: 'tray',    c1: '#5ec3ff', c2: '#2a7cf0' },
     { id: 'tools',     name: 'Tools',       icon: 'sliders', c1: '#3b4452', c2: '#1a1f27', ic: '#a9b5b0' },
     { id: 'youtube',   name: 'YouTube',     icon: 'logo-youtube',   logo: true, c1: '#ffffff', c2: '#e4e4e4', gap: true },
@@ -376,7 +377,7 @@ h1.mark{margin:0;font:400 clamp(1.5rem,6.5vw,2.3rem)/1.1 "Michroma","DM Sans",sy
 
   var dock = document.getElementById('dock');
   function sty(a) { return '--c1:' + a.c1 + ';--c2:' + a.c2 + (a.ic ? ';--ic:' + a.ic : ''); }
-  function svg(a) { return '<svg class="ico' + (a.logo ? ' logo' : '') + '" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-' + a.icon + '"/></svg>'; }
+  function svg(a) { if (a.id === 'browser') return '<img class="ico logo brave-mark" src="https://cdn.jsdelivr.net/npm/simple-icons@16/icons/brave.svg" alt="" aria-hidden="true">'; return '<svg class="ico' + (a.logo ? ' logo' : '') + '" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-' + a.icon + '"/></svg>'; }
 
   var html = '';
   APPS.forEach(function (a) {
