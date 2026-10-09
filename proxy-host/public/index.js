@@ -29,6 +29,23 @@ function tabLabel(url) {
 }
 
 function updateTab(tab, url) {
+	if (typeof url !== "string" || !url) return;
+	try {
+		const nextUrl = new URL(url);
+		const previousUrl = tab.url ? new URL(tab.url) : null;
+		// Keep the last good address when a proxied SPA omits the optional
+		// history URL and Scramjet reports its current compatibility bug.
+		if (
+			previousUrl &&
+			nextUrl.origin === previousUrl.origin &&
+			nextUrl.pathname === "/undefined" &&
+			previousUrl.pathname !== "/undefined"
+		) {
+			return;
+		}
+	} catch {
+		return;
+	}
 	tab.url = url;
 	tab.title = tabLabel(url);
 	tab.button.querySelector(".tab-title").textContent = tab.title;
