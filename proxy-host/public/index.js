@@ -184,5 +184,7 @@ document.addEventListener("keydown", (event) => {
 	}
 });
 
+const initialUrl = new URL(window.location.href).searchParams.get("url");
 createTab();
+if (initialUrl) navigate(initialUrl);
 
