@@ -8,6 +8,22 @@ import { server as wisp } from "@mercuryworkshop/wisp-js/server";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const { routeRequest, routeUpgrade } = await bootstrap();
 
+// Wisp stores active streams in a plain object, but its per-host limiter
+// iterates that object. Make the existing values iterable without changing its
+// key-based lookups or Object.keys count, so the limit stays enforced.
+const createWispStream = wisp.ServerConnection.prototype.create_stream;
+wisp.ServerConnection.prototype.create_stream = function (...args) {
+	if (typeof this.streams[Symbol.iterator] !== "function") {
+		Object.defineProperty(this.streams, Symbol.iterator, {
+			configurable: true,
+			value: function* () {
+				yield* Object.values(this);
+			},
+		});
+	}
+	return createWispStream.apply(this, args);
+};
+
 // Public hosting must never allow a visitor to use this service to reach the
 // host's private network or local services. Limit streams to ordinary web
 // ports and disable UDP to reduce abuse and resource use.
