@@ -1,0 +1,1318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>tanner-os</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;600&family=DM+Mono&family=Michroma&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fg:#EEF2F7; --muted:rgba(238,242,247,.62); --glass:rgba(12,16,22,.72); --glass-2:rgba(0,0,0,.32);
+  --line:rgba(255,255,255,.12); --shade:0; --hi:#4C8DFF; --hi-ink:#fff;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--shade:.4;--glass:rgba(8,11,16,.8)}
+}
+:root[data-theme="dark"]{--shade:.4;--glass:rgba(8,11,16,.8)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:#0b0f14;color:var(--fg);
+  font:400 .95rem/1.5 "DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit}
+:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:8px}
+ul{list-style:none;margin:0;padding:0}
+
+/* ---------- Wallpaper: blossoms, garden, pond ---------- */
+:root{
+  --w-blossom:
+  radial-gradient(38% 30% at 12% 16%,#ffa6c6 0,rgba(255,166,198,0) 72%),
+  radial-gradient(30% 26% at 32% 6%,#f66f9f 0,rgba(246,111,159,0) 72%),
+  radial-gradient(34% 30% at 4% 46%,#e24a86 0,rgba(226,74,134,0) 72%),
+  radial-gradient(26% 22% at 90% 20%,#72c34c 0,rgba(114,195,76,0) 72%),
+  radial-gradient(32% 28% at 80% 54%,#2f8f3a 0,rgba(47,143,58,0) 72%),
+  radial-gradient(16% 13% at 60% 36%,#e8742b 0,rgba(232,116,43,0) 72%),
+  linear-gradient(180deg,#bfe4f3 0%,#e9f1e3 34%,#2d5a3d 70%,#12302c 100%);
+  --w-void:
+  radial-gradient(70% 45% at 50% 108%,rgba(150,165,185,.5) 0,rgba(150,165,185,0) 70%),
+  radial-gradient(50% 35% at 15% 0%,rgba(76,141,255,.16) 0,rgba(76,141,255,0) 70%),
+  linear-gradient(180deg,#07090d 0%,#0d1218 55%,#18202a 100%);
+  --w-pond:
+  radial-gradient(40% 32% at 20% 80%,#2f9a8a 0,rgba(47,154,138,0) 72%),
+  radial-gradient(34% 28% at 85% 25%,#3d7cc9 0,rgba(61,124,201,0) 72%),
+  radial-gradient(28% 24% at 55% 55%,#7ed6a8 0,rgba(126,214,168,0) 72%),
+  linear-gradient(180deg,#0e2a33 0%,#13463f 55%,#0a1f1f 100%);
+  --w-dusk:
+  radial-gradient(40% 30% at 20% 20%,#ff8f6b 0,rgba(255,143,107,0) 72%),
+  radial-gradient(36% 30% at 80% 30%,#b56bff 0,rgba(181,107,255,0) 72%),
+  radial-gradient(44% 30% at 50% 90%,#ff5f8a 0,rgba(255,95,138,0) 72%),
+  linear-gradient(180deg,#2b1b4d 0%,#7a2f6b 55%,#ff9a6b 100%);
+  --w-slate:
+  radial-gradient(40% 30% at 20% 20%,#3a4a52 0,rgba(58,74,82,0) 72%),
+  radial-gradient(40% 30% at 80% 80%,#2a3a40 0,rgba(42,58,64,0) 72%),
+  linear-gradient(180deg,#1a2226,#0d1214);
+}
+.wall{position:fixed;inset:0;z-index:-1;background:var(--w-void);overflow:hidden;isolation:isolate}
+.wall-video{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+.wall-clock{position:absolute;z-index:2;top:calc(.8rem + env(safe-area-inset-top,0px));left:clamp(.85rem,2vw,1.5rem);display:flex;flex-direction:column;gap:.08rem;pointer-events:none;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.wall-time{color:rgba(255,255,255,.97);font-size:clamp(.95rem,1.3vw,1.15rem);font-weight:600;line-height:1.2;letter-spacing:0;font-variant-numeric:tabular-nums}
+.wall-date{color:rgba(255,255,255,.84);font-size:clamp(.68rem,.85vw,.78rem);font-weight:500;letter-spacing:.02em}
+html[data-wall="blossom"] .wall{background:var(--w-blossom)}
+html[data-wall="pond"] .wall{background:var(--w-pond)}
+html[data-wall="dusk"] .wall{background:var(--w-dusk)}
+html[data-wall="slate"] .wall{background:var(--w-slate)}
+.wall::after{content:"";position:absolute;z-index:1;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(0,0,0,.45) 100%),linear-gradient(rgba(0,0,0,var(--shade)),rgba(0,0,0,var(--shade)))}
+
+/* ---------- Glass surfaces ---------- */
+.win,.sub,.widget{background:var(--glass);border:1px solid var(--line);color:var(--fg);
+  -webkit-backdrop-filter:blur(var(--blur,20px)) saturate(1.4);backdrop-filter:blur(var(--blur,20px)) saturate(1.4);
+  box-shadow:0 18px 50px rgba(0,0,0,.3)}
+.titlebar{display:flex;align-items:center;gap:.5rem;height:2.25rem;padding:0 .75rem;background:var(--glass-2);
+  border-bottom:1px solid var(--line);font:400 .75rem/1 "DM Mono",ui-monospace,monospace;color:var(--muted)}
+.titlebar .ico{width:.85rem;height:.85rem;border-radius:.25rem;background:linear-gradient(145deg,var(--c1,#5aa0ff),var(--c2,#2a5fd0))}
+.titlebar .ctl{margin-left:auto;letter-spacing:.1em}
+
+/* ---------- Page window ---------- */
+main.desktop{position:relative;min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));padding:0;overflow:hidden}
+.window-layer{position:absolute;inset:0;pointer-events:none}
+.win{width:min(32rem,100%);border-radius:14px;overflow:hidden}
+.win.pop{animation:pop .22s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.managed-window{position:absolute;left:50%;top:50%;display:flex;flex-direction:column;min-width:min(20rem,calc(100vw - 1.5rem));max-height:calc(100dvh - 7rem);margin:0;transform:translate(-50%,-50%);pointer-events:auto}
+.managed-window.pop{animation:window-pop .22s var(--ease)}
+@keyframes window-pop{from{opacity:0;transform:translate(-50%,-50%) scale(.97)}to{opacity:1;transform:translate(-50%,-50%)}}
+.managed-window.is-minimized{display:none}
+.managed-window.is-maximized{left:.5rem!important;right:.5rem!important;top:.5rem!important;bottom:5.6rem!important;width:auto!important;max-height:none;border-radius:14px;transform:none}
+.managed-window.is-maximized.pop{animation:none}
+.managed-window.is-maximized .win-body{display:flex;flex:1;flex-direction:column}
+.managed-window.is-maximized #games{height:auto;min-height:0;flex:1}
+.window-titlebar{flex:none;padding-right:.35rem;touch-action:none;cursor:grab;user-select:none}
+.window-titlebar:active{cursor:grabbing}
+.window-caption{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.window-controls{display:flex;align-items:center;gap:.15rem;margin-left:auto;text-transform:none;letter-spacing:normal}
+.window-control{display:grid;place-items:center;width:2.15rem;height:2rem;border:0;border-radius:8px;background:transparent;color:var(--fg);font:400 1rem/1 "DM Sans",system-ui,sans-serif;cursor:pointer}
+.window-control:hover{background:rgba(255,255,255,.15)}
+.window-control.close:hover{background:#c42b1c;color:#fff}
+.managed-window .win-body{min-height:0;overflow:auto;overscroll-behavior:contain}
+.app-placeholder{padding:1rem 0;text-align:center}
+.app-placeholder .lede{margin-inline:auto}
+.win.spotify{width:min(38rem,calc(100vw - 1.5rem))}
+.win.scramjet-browser{width:min(76rem,calc(100vw - 1.5rem))}
+.scramjet-browser .win-body{display:flex;flex:1;flex-direction:column;min-height:28rem;padding:0;overflow:hidden}
+.scramjet-frame{display:block;flex:1;width:100%;height:min(68vh,52rem);min-height:27rem;border:0;background:#0f0f0f}
+.win.minecraft{width:min(76rem,calc(100vw - 1.5rem))}
+.minecraft-body{display:flex;flex:1;flex-direction:column;min-height:28rem;padding:0;overflow:hidden}
+.minecraft-launchbar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.45rem .7rem;border-bottom:1px solid var(--line);color:var(--muted);font-size:.76rem}
+.minecraft-open{flex:none;padding:.35rem .65rem;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.06);color:var(--fg);font-weight:600;text-decoration:none}
+.minecraft-open:hover{background:rgba(255,255,255,.13)}
+.minecraft-frame{display:block;flex:1;width:100%;height:min(68vh,52rem);min-height:27rem;border:0;background:#050505}
+.spotify-body{min-width:0}
+.spotify-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.5rem;align-items:start;margin-bottom:.5rem}
+.spotify-form .gq,.spotify-form .gback{margin:0}
+.spotify-form .gback{white-space:nowrap}
+.spotify-help{margin:.5rem 0 1rem;color:var(--muted);font-size:.82rem}
+.spotify-error{min-height:1.2em;margin:.4rem 0 0;color:#ff9c9c;font-size:.82rem}
+.spotify-player{min-height:8rem}
+.spotify-player iframe{display:block;width:100%;height:352px;border:0;border-radius:12px;background:rgba(255,255,255,.06)}
+.spotify-actions{display:flex;justify-content:flex-end;margin-top:.55rem}
+.spotify-open{color:var(--fg);font-size:.8rem}
+.dock .tile.is-running::after{opacity:.6}
+.dock .tile.is-minimized::after{width:8px;height:3px;left:calc(50% - 4px);border-radius:3px;opacity:.55}
+.dock .tile[aria-current="page"]::after{opacity:1}
+.win-body{padding:1.5rem 1.5rem 1.75rem}
+h1{margin:0 0 .75rem;font-size:clamp(1.9rem,7vw,2.6rem);line-height:1.05;letter-spacing:-.035em;font-weight:600}
+.lede{margin:0;max-width:26rem;color:var(--muted)}
+
+/* ---------- Top-right widget ---------- */
+.widget-wrap{position:fixed;top:0;right:0;z-index:10001;padding:calc(.9rem + env(safe-area-inset-top,0px)) .9rem 0}
+.widget-wrap[hidden]{display:none}
+.widget{display:flex;align-items:center;gap:.6rem;padding:.55rem .8rem .55rem .6rem;border-radius:14px}
+.dot{width:1.7rem;height:1.7rem;border-radius:50%;display:grid;place-items:center;background:#1ed760}
+.dot::after{content:"";width:.5rem;height:.5rem;border-radius:50%;background:#0a2a14}
+.widget small{display:block;font:400 .7rem/1.1 "DM Mono",ui-monospace,monospace;color:var(--muted)}
+.widget strong{display:block;font-size:.85rem;font-weight:600;line-height:1.3}
+
+/* ---------- Dock ---------- */
+.dock-wrap{position:fixed;left:0;right:0;bottom:0;z-index:10000;display:flex;justify-content:center;pointer-events:none;
+  padding:0 .75rem calc(.9rem + env(safe-area-inset-bottom,0px))}
+.shell{position:relative;isolation:isolate;min-width:0;max-width:100%;pointer-events:auto;border-radius:20px}
+.shell::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--glass);border:1px solid var(--line);
+  -webkit-backdrop-filter:blur(var(--blur,20px)) saturate(1.4);backdrop-filter:blur(var(--blur,20px)) saturate(1.4);box-shadow:0 12px 36px rgba(0,0,0,.35)}
+.dock{display:flex;gap:.45rem;padding:.5rem}
+.dock>li{flex:none}
+.dock>li.gap{margin-left:.55rem}
+.tile,.chip{position:relative;display:grid;place-items:center;padding:0;border:0;border-radius:12px;
+  background:linear-gradient(145deg,var(--c1),var(--c2));box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 1px 3px rgba(0,0,0,.4);
+  color:var(--ic,#fff);text-decoration:none}
+.tile{width:var(--tile,2.6rem);aspect-ratio:1;cursor:pointer;transition:transform .18s var(--ease)}
+.chip{width:3.1rem;aspect-ratio:1}
+.ico{width:56%;height:56%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.logo{width:68%;height:68%}
+.tile::after{content:"";position:absolute;bottom:-.38rem;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--hi);opacity:0}
+.tile.is-current::after,.tile[aria-current]::after,.has-sub.open>.tile::after{opacity:.9}
+.tile::before{content:attr(data-label);position:absolute;bottom:calc(100% + .7rem);left:50%;translate:-50% 4px;padding:.3rem .6rem;border-radius:8px;
+  background:rgba(10,14,14,.92);border:1px solid var(--line);color:var(--fg);font-size:.75rem;line-height:1.2;white-space:nowrap;opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .15s,translate .15s var(--ease)}
+@media (hover:hover){
+  .tile:hover{transform:translateY(-4px) scale(1.07)}
+  .tile:hover::before,.tile:focus-visible::before{opacity:1;visibility:visible;translate:-50% 0}
+}
+.has-sub.open>.tile::before{display:none}
+@media (min-width:760px){.tile{width:var(--tile,2.75rem)}}
+@media (max-width:759px){
+  .dock{overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
+  .dock::-webkit-scrollbar{display:none}
+}
+
+/* ---------- Apps window ---------- */
+.sub{position:fixed;left:0;right:0;bottom:calc(5.4rem + env(safe-area-inset-bottom,0px));margin:0 auto;width:min(34rem,calc(100% - 1.5rem));
+  border-radius:14px;overflow:hidden;visibility:hidden;opacity:0;transform:translateY(.6rem) scale(.98);transform-origin:50% 100%;
+  transition:opacity .16s,transform .2s var(--ease),visibility 0s .2s}
+.has-sub.open>.sub{visibility:visible;opacity:1;transform:none;transition-delay:0s}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;padding:1rem}
+.app{display:flex;flex-direction:column;align-items:center;gap:.4rem;padding:.65rem .25rem;border-radius:12px;font-size:.8rem;line-height:1.2;text-align:center;text-decoration:none}
+.app:hover{background:rgba(255,255,255,.12)}
+@media (min-width:640px){.grid{grid-template-columns:repeat(6,1fr)}}
+[hidden]{display:none!important}
+.win.wide{width:min(60rem,calc(100vw - 1.5rem))}
+#games{display:flex;flex-direction:column;overflow:hidden;min-height:18rem;
+  height:min(36rem,calc(100dvh - 19rem - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)))}
+.gscroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
+.gtools{display:grid;grid-template-columns:1fr auto auto;gap:.5rem;margin-bottom:.75rem}
+.gtools .gq{margin:0;min-width:0}
+.gsel{min-width:0;padding:.65rem .8rem;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.08);color:var(--fg);font:inherit;color-scheme:dark}
+.gh{margin:1.25rem 0 .5rem;font:400 .75rem/1.2 "DM Mono",ui-monospace,monospace;color:var(--muted)}
+.gscroll>div:first-child>.gh{margin-top:0}
+.gimg{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;margin-bottom:.35rem;background:rgba(255,255,255,.08)}
+.gname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gmore{display:block;margin:1rem auto;padding:.55rem 1.1rem;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.1);color:var(--fg);font:inherit;cursor:pointer}
+.gnote{margin:1.25rem 0 0;color:var(--muted);font-size:.75rem}
+.gbar{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-bottom:.75rem}
+.gbar .gback{margin:0}
+.gvname{flex:1;min-width:8rem;font-weight:600;line-height:1.2}
+.gvname small{display:block;font-weight:400;font-size:.75rem;color:var(--muted)}
+.gstage{position:relative;flex:1;min-height:0;border-radius:10px;overflow:hidden;background:#000}
+.gstage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.gmsg{position:absolute;inset:0;display:grid;place-items:center;margin:0;padding:1rem}
+.win.wide .win-body{padding:1rem 1.25rem 1.25rem}
+@media (max-width:640px){.win.wide .win-body{padding:.75rem}.gtools{grid-template-columns:1fr 1fr}.gtools .gq{grid-column:1/-1}}
+.gq{width:100%;margin-bottom:1rem;padding:.65rem .85rem;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.08);color:var(--fg);font:inherit}
+.gq::placeholder{color:var(--muted)}
+.gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(8rem,1fr));gap:.75rem}
+.gcard{display:flex;flex-direction:column;gap:.15rem;padding:.5rem;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.05);color:var(--fg);font:inherit;text-align:left;text-decoration:none;cursor:pointer}
+.gcard:hover{background:rgba(255,255,255,.12)}
+.gcover{aspect-ratio:1;margin-bottom:.35rem;border-radius:8px;display:grid;place-items:center;font-size:2.4rem;font-weight:600;color:#fff;background:linear-gradient(145deg,var(--c1),var(--c2))}
+.gname{font-weight:600;line-height:1.2}
+.gtag{font-size:.8rem;color:var(--muted)}
+.gback{margin-bottom:.75rem;padding:.4rem .8rem;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.08);color:var(--fg);font:inherit;font-size:.85rem;cursor:pointer}
+.gback:hover{background:rgba(255,255,255,.16)}
+.gtitle{margin:0 0 .75rem;font-size:1.25rem;font-weight:600;letter-spacing:-.02em}
+.gcanvas{display:block;width:min(100%,19rem);aspect-ratio:1;margin:0 auto;border:1px solid var(--line);border-radius:10px}
+.ginfo{margin:.75rem 0 0;text-align:center;color:var(--muted)}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;max-width:20rem;margin:0 auto}
+.mgrid.t3{grid-template-columns:repeat(3,1fr);max-width:15rem}
+.mcard{aspect-ratio:1;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.1);color:var(--fg);font:inherit;font-size:1.6rem;cursor:pointer}
+.mcard.up{background:var(--hi);color:var(--hi-ink)}
+/* ---------- Settings ---------- */
+.win.med{width:min(40rem,calc(100vw - 1.5rem))}
+#settings{max-height:min(34rem,calc(100dvh - 17rem - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));min-height:12rem;overflow:auto;overscroll-behavior:contain}
+#settings>.gh:first-child{margin-top:0}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--line)}
+.srow:last-of-type{border-bottom:0}
+.slab{min-width:0}
+.slab b{display:block;font-weight:500}
+.slab span{display:block;font-size:.8rem;line-height:1.3;color:var(--muted)}
+.seg{display:inline-flex;flex:none;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{padding:.4rem .7rem;border:0;background:transparent;color:var(--fg);font:inherit;font-size:.85rem;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--hi);color:#1a1013}
+.swrow{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:flex-end}
+.swatch{width:2.2rem;height:2.2rem;padding:0;border:2px solid var(--line);border-radius:10px;cursor:pointer;background-size:cover}
+.swatch[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 2px var(--hi)}
+.srange{display:flex;align-items:center;gap:.6rem;flex:none}
+.srange input{width:8.5rem;accent-color:var(--hi)}
+.srange output{min-width:2.6rem;text-align:right;font:400 .75rem/1 "DM Mono",ui-monospace,monospace;color:var(--muted)}
+.sw{appearance:none;-webkit-appearance:none;position:relative;flex:none;width:2.6rem;height:1.5rem;margin:0;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.18);cursor:pointer;transition:background .15s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:calc(1.5rem - 6px);height:calc(1.5rem - 6px);border-radius:50%;background:#fff;transition:transform .15s var(--ease)}
+.sw:checked{background:var(--hi)}
+.sw:checked::after{transform:translateX(1.1rem)}
+.sfoot{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;margin-top:1.25rem}
+.sfoot .gback{margin:0}
+.sfoot small{color:var(--muted);font-size:.75rem}
+@media (max-width:520px){.srow{flex-wrap:wrap}.swrow{justify-content:flex-start}}
+html[data-labels="off"] .tile::before{display:none}
+html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="off"] *::after{transition:none!important;animation:none!important}
+/* ---------- Look: dark glass, blue accent, pill buttons, spaced wordmark ---------- */
+.win,.sub{border-radius:20px}
+.widget{border-radius:999px;padding:.5rem 1rem .5rem .55rem}
+.titlebar{text-transform:uppercase;letter-spacing:.14em;font-size:.66rem}
+.window-controls,.window-control{letter-spacing:normal;text-transform:none}
+#plain{padding:1rem 0;text-align:center}
+h1.mark{margin:0;font:400 clamp(1.5rem,6.5vw,2.3rem)/1.1 "Michroma","DM Sans",system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase}
+.rule{width:min(11rem,60%);height:2px;margin:1rem auto 1.25rem;border-radius:2px;background:var(--fg)}
+#plain .lede{margin-inline:auto}
+.btn{display:inline-block;margin-top:1.4rem;padding:.6rem 1.4rem;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--fg);font:600 .72rem/1 "DM Sans",system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
+.btn:hover{background:rgba(255,255,255,.1)}
+.gh{text-transform:uppercase;letter-spacing:.16em;font-size:.68rem}
+.gq,.gsel,.gmore{border-radius:999px}
+.gcard{border-radius:16px}
+.gcover,.gimg{border-radius:12px}
+.gnote a{color:var(--hi)}
+.seg{border-radius:999px}
+.seg button[aria-pressed="true"]{background:var(--hi);color:var(--hi-ink)}
+.swatch{border-radius:50%}
+@media (max-width:520px){.managed-window{max-height:calc(100dvh - 7rem)}.managed-window.is-maximized{left:.35rem!important;right:.35rem!important;top:.35rem!important;bottom:5.4rem!important}.spotify-form{grid-template-columns:1fr}.spotify-form .gback{justify-self:start}.scramjet-browser .win-body{min-height:18rem}.scramjet-frame{height:62vh;min-height:18rem}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-checker" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.4" fill="currentColor"/><rect x="13" y="13" width="7" height="7" rx="1.4" fill="currentColor"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><rect x="4" y="13" width="7" height="7" rx="1.4"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="5" y="5" width="5" height="5" rx="1.2" fill="currentColor"/><rect x="14" y="5" width="5" height="5" rx="1.2" fill="currentColor"/><rect x="5" y="14" width="5" height="5" rx="1.2" fill="currentColor"/><rect x="14" y="14" width="5" height="5" rx="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-film" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 5v14M16 5v14M4 9.5h4M4 14.5h4M16 9.5h4M16 14.5h4"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.2"/><circle cx="17" cy="16" r="2.2"/></symbol>
+  <symbol id="i-pad" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="9" rx="4.5"/><path d="M8 10.5v4M6 12.5h4"/><circle cx="15.5" cy="11.5" r=".9" fill="currentColor"/><circle cx="17.5" cy="13.5" r=".9" fill="currentColor"/></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle cx="9" cy="9" r="1.3" fill="currentColor"/><circle cx="15" cy="9" r="1.3" fill="currentColor"/><circle cx="9" cy="15" r="1.3" fill="currentColor"/><circle cx="15" cy="15" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6a2.5 2.5 0 0 1-2.5 2.5H11l-4 4v-4h-.5A2.5 2.5 0 0 1 4.9 12.5v-6Z"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.3 3.5 5 3.5 8s-1 5.7-3.5 8c-2.5-2.3-3.5-5-3.5-8s1-5.7 3.5-8Z"/></symbol>
+  <symbol id="i-tray" viewBox="0 0 24 24"><path d="M12 4v10M8 10.5l4 4 4-4M5 19h14"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2" fill="currentColor"/><circle cx="15" cy="16" r="2" fill="currentColor"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M9 7v10l8-5-8-5Z" fill="currentColor"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></symbol>
+  <symbol id="i-logo-netflix" viewBox="0 0 24 24"><g stroke="none"><path d="M6 2h3.6v20H6zM14.4 2H18v20h-3.6z" fill="#B1060F"/><path d="M6 2h3.6L18 22h-3.6z" fill="#E50914"/></g></symbol>
+  <symbol id="i-logo-spotify" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1ED760" stroke="none"/><g fill="none" stroke="#0a0a0a" stroke-linecap="round"><path d="M6 9.1Q12 7.1 18.2 10" stroke-width="1.9"/><path d="M6.9 12.4Q12 10.8 17 13.2" stroke-width="1.5"/><path d="M7.7 15.4Q12 14.2 15.8 16.1" stroke-width="1.2"/></g></symbol>
+  <symbol id="i-logo-youtube" viewBox="0 0 24 24"><g stroke="none"><rect x="1" y="4.5" width="22" height="15" rx="4.2" fill="#FF0000"/><path d="M9.8 8.8v6.4L15.6 12z" fill="#fff"/></g></symbol>
+  <symbol id="i-logo-minecraft" viewBox="0 0 24 24"><g stroke="none"><path d="M12 2.5 21 7l-9 4.5L3 7z" fill="#6DBF3F"/><path d="M3 7l9 4.5v10L3 17z" fill="#8B5E3C"/><path d="M21 7l-9 4.5v10l9-4.5z" fill="#6A4529"/><path d="M3 7l9 4.5v2L3 9z" fill="#5AA832"/><path d="M21 7l-9 4.5v2l9-4.5z" fill="#468A26"/></g></symbol>
+</svg>
+
+<div class="wall">
+  <video class="wall-video" autoplay muted loop playsinline preload="auto" tabindex="-1" aria-hidden="true">
+    <source src="wandering-samurai.3840x2160.mp4" type="video/mp4">
+  </video>
+  <div class="wall-clock">
+    <time class="wall-time" id="wall-time" aria-label="Current local time"></time>
+    <div class="wall-date" id="wall-date"></div>
+  </div>
+</div>
+<script>
+(function () {
+  var time = document.getElementById('wall-time');
+  var date = document.getElementById('wall-date');
+  if (!time || !date) return;
+  var timeFormatter = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+  var dateFormatter = new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  function updateClock() {
+    var now = new Date();
+    time.dateTime = now.toISOString();
+    time.textContent = timeFormatter.format(now);
+    date.textContent = dateFormatter.format(now);
+  }
+  updateClock();
+  window.setInterval(updateClock, 1000);
+})();
+</script>
+
+<div class="widget-wrap" hidden>
+  <aside class="widget" aria-label="Media">
+    <span class="dot" aria-hidden="true"></span>
+    <span><small>Spotify</small><strong>Playing</strong></span>
+  </aside>
+</div>
+
+<main class="desktop" id="desktop" aria-label="Desktop">
+  <div class="window-layer" id="window-layer">
+  <section class="win managed-window pop is-active" id="home-window" data-app="home" role="dialog" aria-label="Home window">
+    <div class="titlebar window-titlebar" data-drag-handle><span class="ico"></span><span class="window-caption">Home</span><div class="window-controls">
+      <button class="window-control" type="button" data-window-action="minimize" aria-label="Minimize Home">−</button>
+      <button class="window-control" type="button" data-window-action="maximize" aria-label="Maximize Home">□</button>
+      <button class="window-control close" type="button" data-window-action="close" aria-label="Close Home">×</button>
+    </div></div>
+    <div class="win-body">
+      <div id="plain">
+        <h1 class="mark" id="title">tanner-os</h1>
+        <div class="rule"></div>
+        <p class="lede" id="lede">Pick a tab in the dock, or open Apps to see them all.</p>
+        <button class="btn" id="open-apps" type="button">Open apps</button>
+      </div>
+    </div>
+  </section>
+  </div>
+</main>
+
+<nav class="dock-wrap" aria-label="Main">
+  <div class="shell"><ul class="dock" id="dock"></ul></div>
+</nav>
+
+<script>
+(function () {
+  /* ---- The tabs. Edit names, colors and hrefs here. ---- */
+  var APPS = [
+    { id: 'home',      name: 'Home',        icon: 'checker', c1: '#4a5668', c2: '#161b24' },
+    { id: 'apps',      name: 'Apps',        icon: 'grid',    c1: '#4a5668', c2: '#161b24' },
+    { id: 'netflix',   name: 'Netflix',     icon: 'logo-netflix',   logo: true, c1: '#1c1c1c', c2: '#000000', gap: true },
+    { id: 'spotify',   name: 'Spotify',     icon: 'logo-spotify',   logo: true, c1: '#1c1c1c', c2: '#000000' },
+    { id: 'games',     name: 'Games',       icon: 'dice',    c1: '#b48cff', c2: '#6b43d6' },
+    { id: 'messages',  name: 'Messages',    icon: 'chat',    c1: '#86e070', c2: '#3bb44c' },
+    { id: 'settings',  name: 'Settings',    icon: 'gear',    c1: '#d3d6da', c2: '#8d9298', ic: '#23282c' },
+    { id: 'browser',   name: 'Browser',     icon: 'globe',   c1: '#6bb6ff', c2: '#2f7be0' },
+    { id: 'store',     name: 'App Store',   icon: 'tray',    c1: '#5ec3ff', c2: '#2a7cf0' },
+    { id: 'tools',     name: 'Tools',       icon: 'sliders', c1: '#3b4452', c2: '#1a1f27', ic: '#a9b5b0' },
+    { id: 'youtube',   name: 'YouTube',     icon: 'logo-youtube',   logo: true, c1: '#ffffff', c2: '#e4e4e4', gap: true },
+    { id: 'minecraft', name: 'Minecraft',   icon: 'logo-minecraft', logo: true, c1: '#2a303a', c2: '#0f1318' }
+  ];
+
+  var dock = document.getElementById('dock');
+  function sty(a) { return '--c1:' + a.c1 + ';--c2:' + a.c2 + (a.ic ? ';--ic:' + a.ic : ''); }
+  function svg(a) { return '<svg class="ico' + (a.logo ? ' logo' : '') + '" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-' + a.icon + '"/></svg>'; }
+
+  var html = '';
+  APPS.forEach(function (a) {
+    var gap = a.gap ? ' class="gap"' : '';
+    if (a.id === 'apps') {
+      var grid = APPS.filter(function (x) { return x.id !== 'home' && x.id !== 'apps'; }).map(function (x) {
+        return '<a class="app" href="#' + x.id + '" data-app="' + x.id + '" data-page="' + x.name + '">' +
+          '<span class="chip" style="' + sty(x) + '">' + svg(x) + '</span><span>' + x.name + '</span></a>';
+      }).join('');
+      html += '<li class="has-sub"><button class="tile" type="button" data-label="Apps" aria-label="Apps" aria-expanded="false" aria-controls="sub-apps" style="' + sty(a) + '">' + svg(a) + '</button>' +
+        '<div class="sub" id="sub-apps" role="group" aria-label="Apps"><div class="titlebar"><span class="ico" style="' + sty(a) + '"></span>Apps<span class="ctl" aria-hidden="true">–</span></div>' +
+        '<div class="grid">' + grid + '</div></div></li>';
+    } else {
+      html += '<li' + gap + '><a class="tile" href="#' + a.id + '" data-app="' + a.id + '" data-page="' + a.name + '" data-label="' + a.name + '" aria-label="' + a.name + '" style="' + sty(a) + '">' + svg(a) + '</a></li>';
+    }
+  });
+  dock.innerHTML = html;
+
+  /* ---- Apps window: open, close on Esc / outside click / focus leaving ---- */
+  var subs = Array.prototype.slice.call(document.querySelectorAll('.has-sub'));
+  function setSub(li, open) {
+    li.classList.toggle('open', open);
+    li.querySelector('.tile').setAttribute('aria-expanded', String(open));
+  }
+  function closeSubs() { subs.forEach(function (li) { setSub(li, false); }); }
+  subs.forEach(function (li) {
+    li.querySelector('.tile').addEventListener('click', function () { setSub(li, !li.classList.contains('open')); });
+  });
+  document.addEventListener('focusin', function (e) {
+    subs.forEach(function (li) { if (!li.contains(e.target)) setSub(li, false); });
+  });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.has-sub')) closeSubs(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var open = subs.filter(function (li) { return li.classList.contains('open'); })[0];
+    if (open) { setSub(open, false); open.querySelector('.tile').focus(); }
+  });
+
+  /* ---- Games tab. Add your own entries to GAMES. ---- */
+  var gamesBox = null;
+  var gTitle = null;
+  var stop = null;
+  // Built-in games. A game with `url` opens in a new tab, e.g.
+  // { name: 'My game', tag: 'Arcade', url: 'https://example.com/game.html', c1: '#ff7a9c', c2: '#e0405f' }
+  var GAMES = [
+    { name: 'Snake',        tag: 'Arcade',   run: snake,  c1: '#7ed957', c2: '#2f9a3f' },
+    { name: 'Memory match', tag: 'Puzzle',   run: memory, c1: '#ffb04a', c2: '#e86f1c' },
+    { name: 'Tic-tac-toe',  tag: 'Strategy', run: ttt,    c1: '#5aa9ff', c2: '#2f62d8' },
+    { name: 'Claude of Duty', tag: 'Shooter', c1: '#ff7a5a', c2: '#c4301c',
+      frame: {
+        // 1st choice: a copy of the repo sitting next to this file (see README note in the reply)
+        local: 'claude-of-duty/export/web/index.html',
+        // 2nd choice: the author's hosted copy
+        live: 'https://vibeslops.luckeysystems.com/',
+        // Repo copy, 1st click: frame the repo's export/web folder through a host that serves real file types
+        direct: 'https://raw.githack.com/luckeyfaraday/claude-of-duty/main/export/web/index.html',
+        // Backup button: fetch the repo's index.html from a CDN and run it here
+        roots: [
+          'https://cdn.jsdelivr.net/gh/luckeyfaraday/claude-of-duty@main/export/web/',
+          'https://fastly.jsdelivr.net/gh/luckeyfaraday/claude-of-duty@main/export/web/',
+          'https://gcore.jsdelivr.net/gh/luckeyfaraday/claude-of-duty@main/export/web/'
+        ]
+      } }
+  ];
+  function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
+
+  /* ---- Game catalog: loaded the first time the Games tab opens ---- */
+  // Several places host the same files. If one is blocked or down, the next is tried.
+  function jsd(host) {
+    return {
+      name: host,
+      catalog: 'https://' + host + '/gh/freebuisness/assets@main/zones.json',
+      cover: 'https://' + host + '/gh/freebuisness/covers@main',
+      html: 'https://' + host + '/gh/freebuisness/html@main',
+      base: 'https://' + host + '/gh/freebuisness/gn-math-@main/'
+    };
+  }
+  var SOURCES = [
+    jsd('cdn.jsdelivr.net'), jsd('fastly.jsdelivr.net'), jsd('gcore.jsdelivr.net'),
+    {
+      name: 'raw.githubusercontent.com',
+      catalog: 'https://raw.githubusercontent.com/freebuisness/assets/main/zones.json',
+      cover: 'https://raw.githubusercontent.com/freebuisness/covers/main',
+      html: 'https://raw.githubusercontent.com/freebuisness/html/main',
+      base: 'https://raw.githubusercontent.com/freebuisness/gn-math-/main/'
+    }
+  ];
+  var CAT = SOURCES[0];                                  // the source that worked most recently
+  var C = { zones: [], state: 'idle', errors: [] };      // state: idle | loading | ready | error
+  var S = { q: '', sort: 'name', tag: '' };              // remembered between visits to the list
+  var redraw = null, BATCH = 120;
+
+  function fill(u) { return u.replace('{COVER_URL}', CAT.cover).replace('{HTML_URL}', CAT.html); }
+  function cap(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+  // Plain fetch (no AbortSignal or options, which some preview sandboxes can't pass along) with a timeout
+  function getText(url, ms) {
+    return new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () { reject(new Error('timed out after ' + ms / 1000 + 's')); }, ms);
+      fetch(url).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      }).then(function (t) { clearTimeout(timer); resolve(t); },
+              function (e) { clearTimeout(timer); reject(e); });
+    });
+  }
+  function fetchCatalog() {
+    C.errors = [];
+    return SOURCES.reduce(function (chain, src) {
+      return chain.catch(function () {
+        return getText(src.catalog, 10000).then(function (t) {
+          var d = JSON.parse(t);
+          if (!Array.isArray(d) || !d.length) throw new Error('empty list');
+          CAT = src;
+          return d;
+        }).catch(function (e) {
+          C.errors.push(src.name + ': ' + (e && e.message ? e.message : e));
+          throw e;
+        });
+      });
+    }, Promise.reject());
+  }
+  function loadCatalog() {
+    if (C.state === 'loading' || C.state === 'ready') return;
+    C.state = 'loading';
+    fetchCatalog().then(function (d) {
+      C.zones = d.filter(function (z) { return z && z.id !== -1 && z.name && z.url; });   // id -1 is an ad, not a game
+      C.state = 'ready';
+    }).catch(function () { C.state = 'error'; }).then(function () { if (redraw) redraw(); });
+  }
+  // Fetch a game's page, trying the source that worked first and then the others
+  function getGame(z) {
+    var order = [CAT].concat(SOURCES.filter(function (x) { return x !== CAT; }));
+    return order.reduce(function (chain, src) {
+      return chain.catch(function () {
+        return getText(z.url.replace('{HTML_URL}', src.html) + '?t=' + Date.now(), 15000).then(function (t) { return { html: t, source: src }; });
+      });
+    }, Promise.reject());
+  }
+
+  function bCard(g) {
+    var card = g.url ? el('a', 'gcard') : el('button', 'gcard');
+    if (g.url) { card.href = g.url; card.target = '_blank'; card.rel = 'noopener'; } else { card.type = 'button'; card.onclick = function () { g.frame ? playRepo(g) : play(g); }; }
+    var cv = el('span', 'gcover', g.name.charAt(0));
+    cv.style.setProperty('--c1', g.c1 || '#4a5668'); cv.style.setProperty('--c2', g.c2 || '#161b24');
+    card.appendChild(cv); card.appendChild(el('span', 'gname', g.name)); card.appendChild(el('span', 'gtag', g.tag));
+    return card;
+  }
+  function zCard(z) {
+    var card = el('button', 'gcard'); card.type = 'button';
+    card.onclick = function () { playZone(z); };
+    var im = el('img', 'gimg'); im.src = fill(z.cover); im.alt = ''; im.loading = 'lazy'; im.decoding = 'async';
+    im.onerror = function () { im.style.visibility = 'hidden'; };
+    card.appendChild(im); card.appendChild(el('span', 'gname', z.name));
+    var t = (z.special || [])[0];
+    if (t) card.appendChild(el('span', 'gtag', cap(t)));
+    return card;
+  }
+  function card(x) { return x.cover ? zCard(x) : bCard(x); }
+
+  function showGames() {
+    if (stop) { stop(); stop = null; }
+    gTitle.textContent = 'Games';
+    gamesBox.textContent = '';
+    var tools = el('div', 'gtools');
+    var q = el('input', 'gq'); q.type = 'search'; q.placeholder = 'Search games'; q.setAttribute('aria-label', 'Search games'); q.value = S.q;
+    var sort = el('select', 'gsel'); sort.setAttribute('aria-label', 'Sort games');
+    [['name', 'A to Z'], ['new', 'Newest first'], ['old', 'Oldest first']].forEach(function (o) {
+      var n = el('option', '', o[1]); n.value = o[0]; sort.appendChild(n);
+    });
+    sort.value = S.sort;
+    var tag = el('select', 'gsel'); tag.setAttribute('aria-label', 'Filter by tag');
+    tools.appendChild(q); tools.appendChild(sort); tools.appendChild(tag);
+    var scroll = el('div', 'gscroll');
+    gamesBox.appendChild(tools); gamesBox.appendChild(scroll);
+
+    function syncTags() {
+      var seen = {};
+      GAMES.forEach(function (g) { seen[g.tag.toLowerCase()] = 1; });
+      C.zones.forEach(function (z) { (z.special || []).forEach(function (t) { seen[t] = 1; }); });
+      var names = Object.keys(seen).sort();
+      if (tag.options.length === names.length + 1) return;
+      tag.textContent = '';
+      var all = el('option', '', 'All tags'); all.value = ''; tag.appendChild(all);
+      names.forEach(function (t) { var n = el('option', '', cap(t)); n.value = t; tag.appendChild(n); });
+      tag.value = S.tag;
+    }
+    // A heading plus a grid; big lists are added 120 at a time
+    function section(label, items) {
+      var sec = el('div'); sec.appendChild(el('h3', 'gh', label)); scroll.appendChild(sec);
+      var g = el('div', 'gcards'), shown = 0, more = null; sec.appendChild(g);
+      (function next() {
+        var stopAt = Math.min(shown + BATCH, items.length), frag = document.createDocumentFragment();
+        for (; shown < stopAt; shown++) frag.appendChild(card(items[shown]));
+        g.appendChild(frag);
+        if (more) { more.remove(); more = null; }
+        if (shown < items.length) {
+          more = el('button', 'gmore', 'Show more (' + (items.length - shown) + ' left)'); more.type = 'button';
+          more.onclick = next; sec.appendChild(more);
+        }
+      })();
+    }
+    function draw() {
+      syncTags();
+      scroll.textContent = '';
+      var t = S.q.trim().toLowerCase(), tg = S.tag;
+      var b = GAMES.filter(function (g) {
+        return (!t || (g.name + ' ' + g.tag).toLowerCase().indexOf(t) > -1) && (!tg || g.tag.toLowerCase() === tg);
+      });
+      var z = C.zones.filter(function (x) {
+        return (!t || x.name.toLowerCase().indexOf(t) > -1) && (!tg || (x.special || []).indexOf(tg) > -1);
+      });
+      z.sort(S.sort === 'name' ? function (a, c) { return a.name.localeCompare(c.name); }
+        : S.sort === 'new' ? function (a, c) { return c.id - a.id; }
+        : function (a, c) { return a.id - c.id; });
+      if (t || tg) {
+        if (b.length + z.length) section('Results (' + (b.length + z.length) + ')', b.concat(z));
+        else scroll.appendChild(el('p', 'ginfo', 'No games match that search.'));
+      } else {
+        if (b.length) section('Built in', b);
+        var f = z.filter(function (x) { return x.featured; });
+        if (f.length) section('Featured (' + f.length + ')', f);
+        if (z.length) section('All games (' + z.length + ')', z);
+      }
+      if (C.state === 'loading') scroll.appendChild(el('p', 'ginfo', 'Loading more games\u2026'));
+      if (C.state === 'error') {
+        var m = el('p', 'ginfo', 'Couldn\u2019t load the full game list. ');
+        var r = el('button', 'gback', 'Try again'); r.type = 'button';
+        r.onclick = function () { C.state = 'idle'; loadCatalog(); draw(); };
+        m.appendChild(r); scroll.appendChild(m);
+        var framed = false;
+        try { framed = window.self !== window.top; } catch (e) { framed = true; }
+        var hint = framed
+          ? 'This page is running inside a preview frame, which blocks requests to other sites. Download the file and open it in a normal browser tab.'
+          : 'Check that jsdelivr.net or github.com isn\u2019t blocked on your network.';
+        var why = el('p', 'gnote', hint + ' (Details: ' + (C.errors.join(' \u00B7 ') || 'unknown') + ')');
+        why.style.textAlign = 'center'; why.style.userSelect = 'text'; scroll.appendChild(why);
+      }
+      if (C.state === 'ready') {
+        var note = el('p', 'gnote', 'The extra games and their files come from gn-math\u2019s public repos. Takedown requests: ');
+        var mail = el('a', '', 'gn.math.business@gmail.com'); mail.href = 'mailto:gn.math.business@gmail.com';
+        note.appendChild(mail); scroll.appendChild(note);
+      }
+    }
+    q.oninput = function () { S.q = q.value; draw(); };
+    sort.onchange = function () { S.sort = sort.value; draw(); };
+    tag.onchange = function () { S.tag = tag.value; draw(); };
+    redraw = draw;
+    draw();
+    loadCatalog();
+  }
+
+  function play(g) {
+    redraw = null;
+    gamesBox.textContent = '';
+    var wrap = el('div', 'gscroll');
+    var back = el('button', 'gback', 'Back to games'); back.type = 'button'; back.onclick = showGames;
+    var box = el('div');
+    wrap.appendChild(back); wrap.appendChild(el('h2', 'gtitle', g.name)); wrap.appendChild(box);
+    gamesBox.appendChild(wrap);
+    gTitle.textContent = 'Games / ' + g.name;
+    stop = g.run(box) || null;
+    back.focus();
+  }
+
+  function playZone(z) {
+    if (/^https?:/i.test(z.url)) { window.open(z.url, '_blank', 'noopener'); return; }
+    if (stop) { stop(); stop = null; }
+    redraw = null;
+    gamesBox.textContent = '';
+    var bar = el('div', 'gbar');
+    var back = el('button', 'gback', 'Back to games'); back.type = 'button'; back.onclick = showGames;
+    var full = el('button', 'gback', 'Fullscreen'); full.type = 'button';
+    var tab = el('button', 'gback', 'New tab'); tab.type = 'button';
+    var name = el('div', 'gvname', z.name);
+    if (z.author) name.appendChild(el('small', '', 'by ' + z.author));
+    bar.appendChild(back); bar.appendChild(name); bar.appendChild(full); bar.appendChild(tab);
+    var stage = el('div', 'gstage');
+    gamesBox.appendChild(bar); gamesBox.appendChild(stage);
+    gTitle.textContent = 'Games / ' + z.name;
+
+    var alive = true, src = '';
+    function msg(t) { stage.textContent = ''; stage.appendChild(el('p', 'ginfo gmsg', t)); }
+    stop = function () { alive = false; stage.textContent = ''; };   // removing the frame stops the game and its sound
+    full.onclick = function () {
+      var f = stage.querySelector('iframe');
+      if (f) (f.requestFullscreen || f.webkitRequestFullscreen || function () {}).call(f);
+    };
+    tab.onclick = function () {
+      if (!src) return;
+      var w = window.open('about:blank', '_blank');
+      if (w) { w.document.open(); w.document.write(src); w.document.close(); }
+    };
+    msg('Loading ' + z.name + '\u2026');
+    back.focus();
+    getGame(z).then(function (res) {
+      if (!alive) return;
+      var html = res.html;
+      // Games use paths relative to the original site, so point them there
+      if (!/<base\s/i.test(html)) {
+        var tagBase = '<base href="' + res.source.base + '">';
+        html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + tagBase; }) : tagBase + html;
+      }
+      src = html;
+      var f = document.createElement('iframe');
+      f.title = z.name;
+      f.allow = 'fullscreen; autoplay; gamepad; clipboard-write';
+      stage.textContent = '';
+      stage.appendChild(f);
+      var d = f.contentDocument;
+      d.open(); d.write(html); d.close();
+    }).catch(function () {
+      if (alive) msg('Couldn\u2019t load ' + z.name + '. Go back and try again.');
+    });
+  }
+
+  // Games that live in their own web folder: run them in a frame (local copy first, then the hosted one)
+  function playRepo(g) {
+    if (stop) { stop(); stop = null; }
+    redraw = null;
+    gamesBox.textContent = '';
+    var bar = el('div', 'gbar');
+    var back = el('button', 'gback', 'Back to games'); back.type = 'button'; back.onclick = showGames;
+    var repo = el('button', 'gback', 'Repo copy'); repo.type = 'button';
+    var full = el('button', 'gback', 'Fullscreen'); full.type = 'button';
+    var tab = el('button', 'gback', 'New tab'); tab.type = 'button';
+    bar.appendChild(back); bar.appendChild(el('div', 'gvname', g.name)); bar.appendChild(repo); bar.appendChild(full); bar.appendChild(tab);
+    var stage = el('div', 'gstage');
+    gamesBox.appendChild(bar); gamesBox.appendChild(stage);
+    gTitle.textContent = 'Games / ' + g.name;
+
+    var alive = true, chosen = '';
+    function msg(t) { stage.textContent = ''; stage.appendChild(el('p', 'ginfo gmsg', t)); }
+    stop = function () { alive = false; stage.textContent = ''; };
+    full.onclick = function () {
+      var f = stage.querySelector('iframe');
+      if (f) (f.requestFullscreen || f.webkitRequestFullscreen || function () {}).call(f);
+    };
+    tab.onclick = function () { window.open(chosen || g.frame.live, '_blank', 'noopener'); };
+    function mount(f) {
+      f.title = g.name;
+      f.allow = 'fullscreen; autoplay; gamepad; clipboard-write';
+      f.allowFullscreen = true;
+      stage.textContent = '';
+      stage.appendChild(f);
+    }
+    // Main way: a local copy of the repo next to this file if there is one, otherwise the game's hosted site
+    function direct() {
+      msg('Loading ' + g.name + '\u2026');
+      getText(g.frame.local, 4000).then(function () { return g.frame.local; }, function () { return g.frame.live; }).then(function (url) {
+        if (!alive) return;
+        chosen = url;
+        var f = document.createElement('iframe');
+        mount(f);
+        f.src = url;
+      });
+    }
+    // Backup: fetch the repo's index.html from a CDN and run it here with relative paths pointed at the repo
+    function fromRepo() {
+      msg('Loading ' + g.name + ' from the repo\u2026');
+      var errs = [];
+      g.frame.roots.reduce(function (chain, root) {
+        return chain.catch(function () {
+          return getText(root + 'index.html?t=' + Date.now(), 8000).then(function (t) { return { html: t, root: root }; })
+            .catch(function (e) { errs.push(root.split('/')[2] + ': ' + (e && e.message ? e.message : e)); throw e; });
+        });
+      }, Promise.reject()).then(function (res) {
+        if (!alive) return;
+        var html = res.html;
+        if (!/<base\s/i.test(html)) {
+          var b = '<base href="' + res.root + '">';
+          html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + b; }) : b + html;
+        }
+        var f = document.createElement('iframe');
+        mount(f);
+        var d = f.contentDocument;
+        d.open(); d.write(html); d.close();
+      }).catch(function () {
+        if (alive) msg('Couldn\u2019t load the repo copy (' + errs.join(' \u00B7 ') + '). Try New tab.');
+      });
+    }
+    var repoTry = 0;
+    repo.onclick = function () {
+      if (repoTry++ % 2 === 0) {
+        msg('Loading ' + g.name + ' from the repo\u2026');
+        var f = document.createElement('iframe');
+        mount(f);
+        chosen = g.frame.direct;
+        f.src = chosen;
+      } else fromRepo();
+    };
+    back.focus();
+    direct();
+  }
+
+  function snake(box) {
+    var N = 15, S = 20, c = el('canvas', 'gcanvas'), x = c.getContext('2d'), info = el('p', 'ginfo'), s, f, d, nd, score, dead, sx, sy;
+    c.width = c.height = N * S; c.style.touchAction = 'none'; box.appendChild(c); box.appendChild(info);
+    function place() { do { f = { x: Math.random() * N | 0, y: Math.random() * N | 0 }; } while (s.some(function (p) { return p.x === f.x && p.y === f.y; })); }
+    function draw() {
+      x.fillStyle = '#080b10'; x.fillRect(0, 0, N * S, N * S);
+      x.fillStyle = '#4C8DFF'; x.fillRect(f.x * S + 3, f.y * S + 3, S - 6, S - 6);
+      x.fillStyle = '#EEF2F7'; s.forEach(function (p) { x.fillRect(p.x * S + 1, p.y * S + 1, S - 2, S - 2); });
+    }
+    function reset() { s = [{ x: 7, y: 7 }]; d = nd = { x: 1, y: 0 }; score = 0; dead = false; place(); info.textContent = 'Arrow keys or swipe to steer. Score 0'; draw(); }
+    function step() {
+      if (dead) return;
+      d = nd;
+      var h = { x: (s[0].x + d.x + N) % N, y: (s[0].y + d.y + N) % N };
+      if (s.some(function (p) { return p.x === h.x && p.y === h.y; })) { dead = true; info.textContent = 'Game over. Score ' + score + '. Press Enter or tap to play again.'; return; }
+      s.unshift(h);
+      if (h.x === f.x && h.y === f.y) { score++; place(); info.textContent = 'Score ' + score; } else s.pop();
+      draw();
+    }
+    function turn(v) { if (v.x !== -d.x || v.y !== -d.y) nd = v; }
+    var K = { ArrowUp: { x: 0, y: -1 }, ArrowDown: { x: 0, y: 1 }, ArrowLeft: { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 } };
+    function key(e) { if (K[e.key]) { e.preventDefault(); turn(K[e.key]); } else if (e.key === 'Enter' && dead) reset(); }
+    c.addEventListener('pointerdown', function (e) { sx = e.clientX; sy = e.clientY; });
+    c.addEventListener('pointerup', function (e) {
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (Math.abs(dx) + Math.abs(dy) < 20) { if (dead) reset(); return; }
+      turn(Math.abs(dx) > Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) });
+    });
+    document.addEventListener('keydown', key);
+    reset();
+    var t = setInterval(step, 120);
+    return function () { clearInterval(t); document.removeEventListener('keydown', key); };
+  }
+
+  function memory(box) {
+    var sym = ['\u25CF', '\u25A0', '\u25B2', '\u25C6', '\u2605', '\u271A'];
+    var deck = sym.concat(sym).sort(function () { return Math.random() - .5; });
+    var g = el('div', 'mgrid'), info = el('p', 'ginfo', 'Find all six pairs.'), up = [], found = 0, moves = 0, lock = false;
+    deck.forEach(function (sy, i) {
+      var b = el('button', 'mcard'); b.type = 'button'; b.setAttribute('aria-label', 'Card ' + (i + 1));
+      b.onclick = function () {
+        if (lock || b.classList.contains('up')) return;
+        b.classList.add('up'); b.textContent = sy; up.push(b);
+        if (up.length < 2) return;
+        moves++; lock = true;
+        var a = up[0], c = up[1]; up = [];
+        if (a.textContent === c.textContent) { found++; lock = false; info.textContent = found === 6 ? 'Done in ' + moves + ' moves.' : 'Pairs found: ' + found + ' of 6'; }
+        else setTimeout(function () { [a, c].forEach(function (n) { n.classList.remove('up'); n.textContent = ''; }); lock = false; }, 700);
+      };
+      g.appendChild(b);
+    });
+    box.appendChild(g); box.appendChild(info);
+  }
+
+  function ttt(box) {
+    var L = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]], b = Array(9).fill(''), cells = [], over = false;
+    var g = el('div', 'mgrid t3'), info = el('p', 'ginfo', 'You are X. Your move.');
+    function won(p) { return L.some(function (l) { return l.every(function (i) { return b[i] === p; }); }); }
+    function pick(p) {
+      for (var k = 0; k < L.length; k++) {
+        var l = L[k], e = l.filter(function (i) { return !b[i]; }), m = l.filter(function (i) { return b[i] === p; });
+        if (m.length === 2 && e.length === 1) return e[0];
+      }
+      return -1;
+    }
+    function set(i, p) { b[i] = p; cells[i].textContent = p; }
+    function end() {
+      if (won('X')) { info.textContent = 'You win!'; return over = true; }
+      if (won('O')) { info.textContent = 'Computer wins.'; return over = true; }
+      if (b.every(Boolean)) { info.textContent = 'Draw.'; return over = true; }
+      return false;
+    }
+    function ai() {
+      var m = pick('O'); if (m < 0) m = pick('X'); if (m < 0 && !b[4]) m = 4;
+      if (m < 0) { var f = b.map(function (v, i) { return v ? -1 : i; }).filter(function (i) { return i >= 0; }); m = f[Math.random() * f.length | 0]; }
+      set(m, 'O'); if (!end()) info.textContent = 'Your move.';
+    }
+    for (var i = 0; i < 9; i++) (function (i) {
+      var c = el('button', 'mcard'); c.type = 'button'; c.setAttribute('aria-label', 'Square ' + (i + 1));
+      c.onclick = function () { if (over || b[i]) return; set(i, 'X'); if (!end()) ai(); };
+      cells.push(c); g.appendChild(c);
+    })(i);
+    var again = el('button', 'gback', 'New game'); again.type = 'button'; again.style.margin = '.75rem auto 0'; again.style.display = 'block';
+    again.onclick = function () { box.textContent = ''; ttt(box); };
+    box.appendChild(g); box.appendChild(info); box.appendChild(again);
+  }
+
+  /* ---- Settings tab: choices are saved in this browser (localStorage) ---- */
+  var settingsBox = null;
+  var KEY = 'tanner-os:settings:2';
+  var DEF = { theme: 'auto', wall: 'void', accent: '#4C8DFF', glass: null, blur: 20, dock: 'm', labels: true, motion: true };
+  var cfg = {};
+  Object.keys(DEF).forEach(function (k) { cfg[k] = DEF[k]; });
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+    Object.keys(DEF).forEach(function (k) { if (saved && saved[k] !== undefined) cfg[k] = saved[k]; });
+  } catch (e) { /* storage blocked: settings still work, they just won't be remembered */ }
+
+  var INK = { '#4C8DFF': '#fff', '#3DD6F5': '#04222b', '#F2F6FA': '#0b0f14', '#5EEAA8': '#04241a', '#8B7BFF': '#fff' };
+  function applyCfg() {
+    var r = document.documentElement;
+    if (cfg.theme === 'auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', cfg.theme);
+    r.setAttribute('data-wall', cfg.wall);
+    r.style.setProperty('--hi', cfg.accent);
+    r.style.setProperty('--hi-ink', INK[cfg.accent] || '#fff');
+    if (cfg.glass == null) r.style.removeProperty('--glass'); else r.style.setProperty('--glass', 'rgba(12,16,22,' + (cfg.glass / 100) + ')');
+    r.style.setProperty('--blur', cfg.blur + 'px');
+    var size = { s: '2.2rem', l: '3.2rem' }[cfg.dock];
+    if (size) r.style.setProperty('--tile', size); else r.style.removeProperty('--tile');
+    r.setAttribute('data-labels', cfg.labels ? 'on' : 'off');
+    r.setAttribute('data-motion', cfg.motion ? 'on' : 'off');
+  }
+  function put(k, v) {
+    cfg[k] = v;
+    try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) { /* not remembered */ }
+    applyCfg();
+  }
+
+  function buildSettings() {
+    settingsBox.textContent = '';
+    function head(t) { settingsBox.appendChild(el('h3', 'gh', t)); }
+    function row(label, desc, ctl) {
+      var r = el('div', 'srow'), l = el('div', 'slab');
+      l.appendChild(el('b', '', label));
+      if (desc) l.appendChild(el('span', '', desc));
+      r.appendChild(l); r.appendChild(ctl); settingsBox.appendChild(r);
+    }
+    // One of several choices: a segmented control (labels) or a row of colour swatches
+    function choice(key, opts, swatch) {
+      var g = el('div', swatch ? 'swrow' : 'seg'); g.setAttribute('role', 'group');
+      function mark() { Array.prototype.forEach.call(g.children, function (b, i) { b.setAttribute('aria-pressed', String(opts[i][0] === cfg[key])); }); }
+      opts.forEach(function (o) {
+        var b = el('button', swatch ? 'swatch' : '', swatch ? '' : o[1]); b.type = 'button';
+        if (swatch) { b.style.background = o[2]; b.title = o[1]; b.setAttribute('aria-label', o[1]); }
+        b.onclick = function () { put(key, o[0]); mark(); };
+        g.appendChild(b);
+      });
+      mark();
+      return g;
+    }
+    function slider(key, min, max, dflt, unit) {
+      var w = el('div', 'srange'), i = el('input'), o = el('output', '', '');
+      i.type = 'range'; i.min = min; i.max = max; i.value = cfg[key] == null ? dflt : cfg[key];
+      i.setAttribute('aria-label', key);
+      o.textContent = i.value + unit;
+      i.oninput = function () { put(key, +i.value); o.textContent = i.value + unit; };
+      w.appendChild(i); w.appendChild(o);
+      return w;
+    }
+    function toggle(key, label) {
+      var i = el('input', 'sw'); i.type = 'checkbox'; i.checked = !!cfg[key]; i.setAttribute('aria-label', label);
+      i.onchange = function () { put(key, i.checked); };
+      return i;
+    }
+
+    head('Appearance');
+    row('Theme', 'Auto follows your device.', choice('theme', [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']]));
+    row('Wallpaper', null, choice('wall', [
+      ['void', 'Void', 'var(--w-void)'], ['blossom', 'Blossoms', 'var(--w-blossom)'], ['pond', 'Pond', 'var(--w-pond)'],
+      ['dusk', 'Dusk', 'var(--w-dusk)'], ['slate', 'Slate', 'var(--w-slate)']], true));
+    row('Accent colour', 'Highlights, switches and the active dock dot.', choice('accent', [
+      ['#4C8DFF', 'Blue', '#4C8DFF'], ['#3DD6F5', 'Cyan', '#3DD6F5'], ['#F2F6FA', 'White', '#F2F6FA'],
+      ['#5EEAA8', 'Mint', '#5EEAA8'], ['#8B7BFF', 'Violet', '#8B7BFF']], true));
+    row('Glass opacity', 'How solid windows and the dock look.', slider('glass', 40, 95, 74, '%'));
+    row('Glass blur', null, slider('blur', 0, 40, 20, 'px'));
+
+    head('Dock');
+    row('Icon size', null, choice('dock', [['s', 'Small'], ['m', 'Medium'], ['l', 'Large']]));
+    row('Hover labels', 'Show the app name when you hover an icon.', toggle('labels', 'Hover labels'));
+
+    head('General');
+    row('Animations', 'Turn off to remove window and dock motion.', toggle('motion', 'Animations'));
+
+    var foot = el('div', 'sfoot');
+    var reset = el('button', 'gback', 'Reset to defaults'); reset.type = 'button';
+    reset.onclick = function () {
+      Object.keys(DEF).forEach(function (k) { cfg[k] = DEF[k]; });
+      try { localStorage.removeItem(KEY); } catch (e) { /* nothing saved */ }
+      applyCfg(); buildSettings();
+    };
+    foot.appendChild(reset); foot.appendChild(el('small', '', 'Saved in this browser only.'));
+    settingsBox.appendChild(foot);
+  }
+  applyCfg();
+
+  /* ---- Desktop windows: one window per app, managed from the dock ---- */
+  var windowLayer = document.getElementById('window-layer');
+  var homeRoot = document.getElementById('home-window');
+  var homeTemplate = homeRoot.cloneNode(true);
+  var spotifyLastUrl = '';
+  var spotifyIframeApi = null;
+  var spotifyIframeApiPromise = null;
+  var spotifyPlaybackController = null;
+  var spotifyEmbedSequence = 0;
+  var mediaWidget = document.querySelector('.widget-wrap');
+  var mediaTitle = mediaWidget && mediaWidget.querySelector('strong');
+  var appWindows = Object.create(null);
+  var activeWindow = null;
+  var zTop = 20;
+
+  function refreshDock() {
+    Array.prototype.forEach.call(dock.querySelectorAll('a.tile[data-app]'), function (tile) {
+      var record = appWindows[tile.getAttribute('data-app')];
+      tile.classList.toggle('is-running', !!record);
+      tile.classList.toggle('is-minimized', !!(record && record.minimized));
+      if (activeWindow && record === activeWindow) tile.setAttribute('aria-current', 'page');
+      else tile.removeAttribute('aria-current');
+    });
+  }
+
+  function activateWindow(record) {
+    if (!record) return;
+    record.minimized = false;
+    record.root.classList.remove('is-minimized');
+    record.root.setAttribute('aria-hidden', 'false');
+    record.root.style.zIndex = String(++zTop);
+    activeWindow = record;
+    Object.keys(appWindows).forEach(function (id) {
+      appWindows[id].root.classList.toggle('is-active', appWindows[id] === record);
+    });
+    refreshDock();
+  }
+
+  function focusTopWindow() {
+    var visible = Object.keys(appWindows).map(function (id) { return appWindows[id]; })
+      .filter(function (record) { return !record.minimized; });
+    visible.sort(function (a, b) { return (+b.root.style.zIndex || 0) - (+a.root.style.zIndex || 0); });
+    if (visible.length) activateWindow(visible[0]);
+    else { activeWindow = null; refreshDock(); }
+  }
+
+  function minimizeWindow(record) {
+    record.minimized = true;
+    record.root.classList.add('is-minimized');
+    record.root.setAttribute('aria-hidden', 'true');
+    if (activeWindow === record) activeWindow = null;
+    focusTopWindow();
+  }
+
+  function closeWindow(record) {
+    if (record.app.id === 'games') {
+      if (stop) { stop(); stop = null; }
+      redraw = null; gamesBox = null; gTitle = null;
+    }
+    if (record.app.id === 'settings') settingsBox = null;
+    if (record.app.id === 'spotify') clearSpotifyEmbed();
+    record.root.remove();
+    delete appWindows[record.app.id];
+    if (activeWindow === record) activeWindow = null;
+    focusTopWindow();
+  }
+
+  function toggleMaximize(record) {
+    record.maximized = !record.maximized;
+    record.root.classList.toggle('is-maximized', record.maximized);
+    var button = record.root.querySelector('[data-window-action="maximize"]');
+    if (button) {
+      button.textContent = record.maximized ? '▢' : '□';
+      button.setAttribute('aria-label', (record.maximized ? 'Restore ' : 'Maximize ') + record.app.name);
+    }
+    activateWindow(record);
+  }
+
+  function attachWindow(record) {
+    var root = record.root;
+    root.addEventListener('pointerdown', function () { activateWindow(record); });
+    root.addEventListener('click', function (e) {
+      var control = e.target.closest('[data-window-action]');
+      if (!control) return;
+      e.preventDefault(); e.stopPropagation();
+      var action = control.getAttribute('data-window-action');
+      if (action === 'minimize') minimizeWindow(record);
+      else if (action === 'maximize') toggleMaximize(record);
+      else if (action === 'close') closeWindow(record);
+    });
+    var handle = root.querySelector('[data-drag-handle]');
+    handle.addEventListener('dblclick', function (e) {
+      if (e.target.closest('.window-controls')) return;
+      e.preventDefault(); toggleMaximize(record);
+    });
+    handle.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('.window-controls') || record.maximized || e.button !== 0) return;
+      var start = root.getBoundingClientRect(), layer = windowLayer.getBoundingClientRect();
+      var dx = e.clientX, dy = e.clientY, left = start.left - layer.left, top = start.top - layer.top;
+      root.style.left = left + 'px'; root.style.top = top + 'px'; root.style.transform = 'none';
+      try { handle.setPointerCapture(e.pointerId); } catch (ignore) {}
+      function move(ev) {
+        var maxLeft = Math.max(0, windowLayer.clientWidth - 72);
+        var maxTop = Math.max(0, windowLayer.clientHeight - 40);
+        root.style.left = Math.max(0, Math.min(maxLeft, left + ev.clientX - dx)) + 'px';
+        root.style.top = Math.max(0, Math.min(maxTop, top + ev.clientY - dy)) + 'px';
+      }
+      function done() {
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', done);
+        handle.removeEventListener('pointercancel', done);
+      }
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', done);
+      handle.addEventListener('pointercancel', done);
+    });
+  }
+
+  function windowChrome(app) {
+    var root = el('section', 'win managed-window pop');
+    root.setAttribute('role', 'dialog'); root.setAttribute('aria-label', app.name + ' window');
+    root.dataset.app = app.id;
+    if (app.id === 'games') root.classList.add('wide');
+    if (app.id === 'settings') root.classList.add('med');
+    if (app.id === 'spotify') root.classList.add('spotify');
+    if (app.id === 'browser') root.classList.add('scramjet-browser');
+    if (app.id === 'minecraft') root.classList.add('minecraft');
+    var bar = el('div', 'titlebar window-titlebar'); bar.setAttribute('data-drag-handle', '');
+    var icon = el('span', 'ico'); icon.style.cssText = sty(app);
+    var caption = el('span', 'window-caption', app.name);
+    var controls = el('div', 'window-controls');
+    [['minimize', '−', 'Minimize '], ['maximize', '□', 'Maximize '], ['close', '×', 'Close ']].forEach(function (item) {
+      var button = el('button', 'window-control' + (item[0] === 'close' ? ' close' : ''), item[1]);
+      button.type = 'button'; button.setAttribute('data-window-action', item[0]);
+      button.setAttribute('aria-label', item[2] + app.name); controls.appendChild(button);
+    });
+    bar.appendChild(icon); bar.appendChild(caption); bar.appendChild(controls);
+    root.appendChild(bar);
+    return { root: root, caption: caption };
+  }
+
+  function parseSpotifyLink(value) {
+    var raw = (value || '').trim(), type = '', id = '', openUrl = '';
+    var uri = raw.match(/^spotify:(playlist|album):([A-Za-z0-9]+)$/i);
+    if (uri) {
+      type = uri[1].toLowerCase(); id = uri[2];
+    } else {
+      var url;
+      try { url = new URL(raw); } catch (e) { return null; }
+      if (url.protocol !== 'https:' || url.hostname.toLowerCase() !== 'open.spotify.com') return null;
+      var parts = url.pathname.split('/').filter(Boolean);
+      for (var i = 0; i < parts.length - 1; i++) {
+        if (parts[i] === 'playlist' || parts[i] === 'album') {
+          type = parts[i]; id = parts[i + 1]; break;
+        }
+      }
+    }
+    if (!type || !/^[A-Za-z0-9]+$/.test(id)) return null;
+    openUrl = 'https://open.spotify.com/' + type + '/' + id;
+    return { type: type, id: id, openUrl: openUrl };
+  }
+
+  function setMediaPlaying(playing) {
+    if (!mediaWidget) return;
+    mediaWidget.hidden = !playing;
+    if (playing && mediaTitle) mediaTitle.textContent = 'Playing';
+  }
+
+  function clearSpotifyEmbed() {
+    spotifyEmbedSequence++;
+    if (spotifyPlaybackController) {
+      try {
+        if (typeof spotifyPlaybackController.destroy === 'function') spotifyPlaybackController.destroy();
+        else if (typeof spotifyPlaybackController.pause === 'function') spotifyPlaybackController.pause();
+      } catch (ignore) { /* embed may already be closed */ }
+    }
+    spotifyPlaybackController = null;
+    setMediaPlaying(false);
+  }
+
+  function loadSpotifyIframeAPI() {
+    if (spotifyIframeApi) return Promise.resolve(spotifyIframeApi);
+    if (spotifyIframeApiPromise) return spotifyIframeApiPromise;
+    spotifyIframeApiPromise = new Promise(function (resolve, reject) {
+      var timeout = setTimeout(function () { reject(new Error('Spotify player took too long to load.')); }, 15000);
+      window.onSpotifyIframeApiReady = function (api) {
+        clearTimeout(timeout);
+        spotifyIframeApi = api;
+        resolve(api);
+      };
+      var script = document.createElement('script');
+      script.src = 'https://open.spotify.com/embed/iframe-api/v1';
+      script.async = true;
+      script.onerror = function () {
+        clearTimeout(timeout);
+        reject(new Error('Spotify player could not be loaded.'));
+      };
+      document.head.appendChild(script);
+    }).catch(function (error) {
+      spotifyIframeApiPromise = null;
+      throw error;
+    });
+    return spotifyIframeApiPromise;
+  }
+
+  function buildSpotifyWindow(body) {
+    var surface = el('div', 'spotify-body');
+    var form = el('form', 'spotify-form'); form.noValidate = true;
+    var input = el('input', 'gq'); input.type = 'url'; input.placeholder = 'Paste a Spotify playlist or album link';
+    input.setAttribute('aria-label', 'Spotify playlist or album link'); input.value = spotifyLastUrl;
+    var load = el('button', 'gback', 'Load player'); load.type = 'submit';
+    var help = el('p', 'spotify-help', 'Paste a Spotify playlist or album link to play it here.');
+    var error = el('p', 'spotify-error'); error.setAttribute('role', 'status');
+    var player = el('div', 'spotify-player');
+    var actions = el('div', 'spotify-actions');
+    var open = el('a', 'spotify-open', 'Open in Spotify'); open.target = '_blank'; open.rel = 'noopener'; open.hidden = true;
+    actions.appendChild(open);
+    form.appendChild(input); form.appendChild(load);
+    surface.appendChild(form); surface.appendChild(help); surface.appendChild(error); surface.appendChild(player); surface.appendChild(actions);
+    body.appendChild(surface);
+
+    function loadLink(value) {
+      var target = parseSpotifyLink(value);
+      clearSpotifyEmbed();
+      if (!target) {
+        player.textContent = ''; open.hidden = true;
+        error.textContent = 'Use an open.spotify.com playlist or album link.';
+        input.focus(); return;
+      }
+      spotifyLastUrl = value.trim(); error.textContent = '';
+      player.textContent = '';
+      var generation = spotifyEmbedSequence;
+      var mount = el('div', 'spotify-player-mount');
+      player.appendChild(mount);
+      open.href = target.openUrl; open.hidden = false;
+
+      function fallbackEmbed() {
+        if (generation !== spotifyEmbedSequence || !player.contains(mount)) return;
+        var frame = el('iframe');
+        frame.src = 'https://open.spotify.com/embed/' + target.type + '/' + target.id + '?utm_source=generator';
+        frame.title = 'Spotify ' + target.type + ' player';
+        frame.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture');
+        frame.setAttribute('allowfullscreen', ''); frame.loading = 'lazy';
+        mount.replaceWith(frame);
+      }
+
+      loadSpotifyIframeAPI().then(function (api) {
+        if (generation !== spotifyEmbedSequence || !player.contains(mount)) return;
+        api.createController(mount, {
+          uri: 'spotify:' + target.type + ':' + target.id,
+          width: '100%',
+          height: '352'
+        }, function (embedController) {
+          if (generation !== spotifyEmbedSequence || !player.contains(mount)) {
+            if (embedController && typeof embedController.pause === 'function') {
+              try { embedController.pause(); } catch (ignore) { /* controller already released */ }
+            }
+            return;
+          }
+          spotifyPlaybackController = embedController;
+          embedController.addListener('playback_update', function (event) {
+            if (generation !== spotifyEmbedSequence) return;
+            var state = event && event.data ? event.data : {};
+            var playingURI = String(state.playingURI || '');
+            var isSong = /^spotify:track:/i.test(playingURI) || /^https:\/\/open\.spotify\.com\/track\//i.test(playingURI);
+            setMediaPlaying(isSong && state.isPaused === false && state.isBuffering !== true);
+          });
+        });
+      }).catch(fallbackEmbed);
+    }
+
+    form.addEventListener('submit', function (e) { e.preventDefault(); loadLink(input.value); });
+    if (spotifyLastUrl) loadLink(spotifyLastUrl);
+  }
+
+  function createWindow(app) {
+    var root, caption;
+    if (app.id === 'home') {
+      root = homeTemplate.cloneNode(true);
+      caption = root.querySelector('.window-caption');
+    } else {
+      var chrome = windowChrome(app); root = chrome.root; caption = chrome.caption;
+      var body = el('div', 'win-body');
+      if (app.id === 'games') {
+        gamesBox = el('div'); gamesBox.id = 'games'; gTitle = caption;
+        body.appendChild(gamesBox);
+      } else if (app.id === 'settings') {
+        settingsBox = el('div'); settingsBox.id = 'settings';
+        buildSettings(settingsBox); body.appendChild(settingsBox);
+      } else if (app.id === 'spotify') {
+        buildSpotifyWindow(body);
+      } else if (app.id === 'browser') {
+        body.classList.add('scramjet-body');
+        var frame = el('iframe', 'scramjet-frame');
+        frame.title = 'Browser'; frame.src = 'https://tanner-os-browser.onrender.com/';
+        frame.setAttribute('allow', 'fullscreen');
+        body.appendChild(frame);
+      } else if (app.id === 'minecraft') {
+        body.classList.add('minecraft-body');
+        var gamePath = 'Eaglercraft_IR_tf1.12.2/tf1.12.2/Eaglercraft_IR_TuffClient_1.12.2.html';
+        var launchBar = el('div', 'minecraft-launchbar');
+        launchBar.appendChild(el('span', '', 'If the embedded client stays black, open it in its own tab.'));
+        var directLink = el('a', 'minecraft-open', 'Open directly');
+        directLink.href = gamePath; directLink.target = '_blank'; directLink.rel = 'noopener';
+        launchBar.appendChild(directLink); body.appendChild(launchBar);
+        var frame = el('iframe', 'minecraft-frame');
+        frame.title = 'Eaglercraft 1.12.2 TuffClient';
+        frame.src = gamePath; frame.loading = 'eager';
+        frame.setAttribute('allow', 'fullscreen; autoplay; gamepad; pointer-lock');
+        frame.setAttribute('allowfullscreen', '');
+        frame.referrerPolicy = 'no-referrer';
+        body.appendChild(frame);
+      } else {
+        var surface = el('div', 'app-placeholder');
+        surface.appendChild(el('h1', 'mark', app.name));
+        surface.appendChild(el('div', 'rule'));
+        surface.appendChild(el('p', 'lede', 'This is the ' + app.name + ' app window. Connect it to the page or service you want here.'));
+        body.appendChild(surface);
+      }
+      root.appendChild(body);
+      var offset = (Object.keys(appWindows).length % 5) * 24 - 48;
+      root.style.left = 'calc(50% + ' + offset + 'px)';
+      root.style.top = 'calc(50% + ' + offset + 'px)';
+    }
+    var record = { app: app, root: root, minimized: false, maximized: false };
+    appWindows[app.id] = record;
+    windowLayer.appendChild(root);
+    attachWindow(record);
+    if (app.id === 'games') showGames();
+    refreshDock();
+    return record;
+  }
+
+  var homeApp = APPS.filter(function (app) { return app.id === 'home'; })[0];
+  var initialHome = { app: homeApp, root: homeRoot, minimized: false, maximized: false };
+  appWindows.home = initialHome;
+  attachWindow(initialHome);
+  activateWindow(initialHome);
+
+  windowLayer.addEventListener('click', function (e) {
+    if (e.target.closest('#open-apps')) {
+      e.preventDefault(); e.stopPropagation();
+      var launcher = document.querySelector('.has-sub > .tile');
+      if (launcher) launcher.click();
+    }
+  });
+
+  dock.addEventListener('click', function (e) {
+    var link = e.target.closest('a[data-page]');
+    if (!link) return;
+    e.preventDefault();
+    var id = link.getAttribute('data-app');
+    var app = APPS.filter(function (item) { return item.id === id; })[0];
+    if (!app) return;
+    var record = appWindows[id];
+    if (!record) record = createWindow(app);
+    if (record.minimized) activateWindow(record);
+    else if (activeWindow === record && link.classList.contains('tile')) minimizeWindow(record);
+    else activateWindow(record);
+    closeSubs();
+  });
+})();
+</script>
+</body>
+</html>
+
