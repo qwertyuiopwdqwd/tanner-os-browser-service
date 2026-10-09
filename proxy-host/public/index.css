@@ -1,0 +1,57 @@
+:root {
+	color-scheme: dark;
+	font-family: "Segoe UI", system-ui, sans-serif;
+	background: #11151c;
+	color: #eef2f7;
+}
+
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { display: flex; flex-direction: column; background: #11151c; }
+button, input { font: inherit; }
+button { color: inherit; }
+
+.browser-shell {
+	flex: none;
+	background: rgba(21, 27, 36, .97);
+	border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.tab-row { height: 2.7rem; display: flex; align-items: center; gap: .35rem; padding: .35rem .5rem 0; }
+.tabs { display: flex; align-items: stretch; gap: .3rem; min-width: 0; height: 100%; overflow-x: auto; scrollbar-width: thin; }
+.tab { display: flex; align-items: center; gap: .35rem; min-width: 8rem; max-width: 15rem; padding: 0 .4rem 0 .55rem; border: 1px solid transparent; border-bottom: 0; border-radius: .65rem .65rem 0 0; background: transparent; color: #abb5c3; }
+.tab.active { color: #f4f7fb; background: #242b36; border-color: rgba(255,255,255,.1); }
+.tab-select { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.tab-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; }
+.tab-close { display: grid; flex: none; place-items: center; width: 1.35rem; height: 1.35rem; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.tab-close:hover, .new-tab:hover, .nav-controls button:hover { background: rgba(255,255,255,.12); color: #fff; }
+.new-tab { display: grid; flex: none; place-items: center; width: 1.9rem; height: 1.9rem; border: 0; border-radius: .5rem; background: transparent; color: #dce3ec; font-size: 1.25rem; cursor: pointer; }
+
+.address-row { display: flex; align-items: center; gap: .55rem; padding: .45rem .65rem .6rem; }
+.nav-controls { display: flex; gap: .2rem; }
+.nav-controls button { display: grid; place-items: center; width: 2rem; height: 2rem; border: 0; border-radius: .55rem; background: transparent; color: #c8d0db; font-size: 1.35rem; cursor: pointer; }
+#address-form { display: flex; align-items: center; gap: .4rem; min-width: 0; flex: 1; padding: .25rem .3rem .25rem .8rem; border: 1px solid rgba(255,255,255,.12); border-radius: .75rem; background: #11161e; }
+#address { width: 100%; min-width: 0; height: 1.8rem; border: 0; outline: 0; background: transparent; color: #f5f7fa; font-size: .9rem; }
+#address::placeholder { color: #8c97a6; }
+#address-form button { flex: none; padding: .35rem .8rem; border: 0; border-radius: .5rem; background: #4c8dff; color: #fff; font-size: .8rem; font-weight: 600; cursor: pointer; }
+#address-form button:hover { background: #3678ef; }
+
+#pages { position: relative; min-height: 0; flex: 1; background: #10141a; }
+.page { position: absolute; inset: 0; display: none; }
+.page.active { display: flex; }
+.page iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+.welcome { display: flex; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 2rem; text-align: center; background: radial-gradient(70% 70% at 50% 10%, rgba(76,141,255,.18), transparent 70%), #10141a; }
+.welcome-mark { display: grid; place-items: center; width: 4.2rem; height: 4.2rem; border-radius: 1.3rem; background: linear-gradient(145deg, #6bb6ff, #2f7be0); box-shadow: 0 14px 38px rgba(47,123,224,.32); font-size: 2rem; }
+.welcome h1 { margin: 0; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 550; letter-spacing: -.03em; }
+.welcome p { margin: 0; color: #aab4c2; font-size: .9rem; }
+.quick-links { display: flex; flex-wrap: wrap; justify-content: center; gap: .55rem; margin-top: .2rem; }
+.quick-link { padding: .55rem .8rem; border: 1px solid rgba(255,255,255,.12); border-radius: 2rem; background: rgba(255,255,255,.05); color: #e5eaf1; cursor: pointer; }
+.quick-link:hover { background: rgba(255,255,255,.12); }
+.status { position: fixed; bottom: .6rem; left: 50%; z-index: 2; max-width: min(92vw, 40rem); translate: -50% 0; padding: .55rem .85rem; border: 1px solid rgba(255,255,255,.12); border-radius: .7rem; background: rgba(15,19,25,.94); color: #f3c3bc; font-size: .8rem; text-align: center; opacity: 0; pointer-events: none; transition: opacity .15s; }
+.status.show { opacity: 1; }
+
+@media (max-width: 520px) {
+	.tab { min-width: 6rem; max-width: 10rem; }
+	.address-row { gap: .25rem; padding-inline: .4rem; }
+	.nav-controls button { width: 1.8rem; }
+}
+
