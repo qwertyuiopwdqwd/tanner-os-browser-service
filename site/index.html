@@ -1251,12 +1251,13 @@ h1.mark{margin:0;font:400 clamp(1.5rem,6.5vw,2.3rem)/1.1 "Michroma","DM Sans",sy
       } else if (app.id === 'netflix') {
         body.classList.add('netflix-body');
         var launchBar = el('div', 'netflix-launchbar');
-        launchBar.appendChild(el('span', '', 'Movies and TV on Cno.to'));
-        var directLink = el('a', 'netflix-open', 'Open directly');
-        directLink.href = 'https://cno.to/'; directLink.target = '_blank'; directLink.rel = 'noopener';
+        launchBar.appendChild(el('span', '', 'Cno.to through Scramjet'));
+        var proxyUrl = 'https://tanner-os-browser.onrender.com/?url=' + encodeURIComponent('https://cno.to/');
+        var directLink = el('a', 'netflix-open', 'Open proxy separately');
+        directLink.href = proxyUrl; directLink.target = '_blank'; directLink.rel = 'noopener';
         launchBar.appendChild(directLink); body.appendChild(launchBar);
         var frame = el('iframe', 'netflix-frame');
-        frame.title = 'Cno.to movies and TV'; frame.src = 'https://cno.to/'; frame.loading = 'eager';
+        frame.title = 'Cno.to through the Scramjet browser'; frame.src = proxyUrl; frame.loading = 'eager';
         frame.setAttribute('allow', 'fullscreen'); frame.setAttribute('allowfullscreen', '');
         frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation');
         body.appendChild(frame);
