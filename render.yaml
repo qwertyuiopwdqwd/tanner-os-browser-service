@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: tanner-os-browser
+    runtime: node
+    plan: free
+    rootDir: proxy-host
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: false
+
